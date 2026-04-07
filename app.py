@@ -25,7 +25,7 @@ h1,h2,h3{text-align:center;color:white;}
 """, unsafe_allow_html=True)
 
 # ---------------- MODEL ----------------
-model = YOLO("yolov9t.pt")
+model = YOLO("yolov9t.pt")   # put model in root folder
 
 # ---------------- MENU ----------------
 selected = option_menu(
@@ -37,13 +37,11 @@ selected = option_menu(
 
 # ---------------- HOME ----------------
 if selected == "Home":
-
     st.markdown("""
     <div class="glass-card">
     <h1>🔥 AI Powered Fire & Smoke Detection</h1>
     <p style="text-align:center;font-size:18px;">
-    Real-time monitoring using YOLO Deep Learning.
-    Detect fire from images.
+    Detect fire using YOLO model.
     </p>
     </div>
     """, unsafe_allow_html=True)
