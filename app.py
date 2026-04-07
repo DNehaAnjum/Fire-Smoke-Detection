@@ -15,7 +15,6 @@ color:white;
 }
 .glass-card{
 background: rgba(255,255,255,0.08);
-backdrop-filter: blur(10px);
 border-radius:15px;
 padding:20px;
 margin-bottom:20px;
@@ -25,13 +24,13 @@ h1,h2,h3{text-align:center;color:white;}
 """, unsafe_allow_html=True)
 
 # ---------------- MODEL ----------------
-model = YOLO("yolov9t.pt")   # put model in root folder
+model = YOLO("yolov9t.pt")
 
 # ---------------- MENU ----------------
 selected = option_menu(
     "🔥 AI Fire Detection Dashboard",
-    ["Home", "Image"],
-    icons=["house", "image"],
+    ["Home", "Image", "Video"],
+    icons=["house", "image", "camera-video"],
     orientation="horizontal"
 )
 
@@ -40,16 +39,9 @@ if selected == "Home":
     st.markdown("""
     <div class="glass-card">
     <h1>🔥 AI Powered Fire & Smoke Detection</h1>
-    <p style="text-align:center;font-size:18px;">
-    Detect fire using YOLO model.
-    </p>
+    <p style="text-align:center;">Detect fire from images and videos</p>
     </div>
     """, unsafe_allow_html=True)
-
-    st.image(
-        "https://media0.giphy.com/media/lMUGMp2lImgGA/giphy.gif",
-        use_container_width=True
-    )
 
 # ---------------- IMAGE ----------------
 elif selected == "Image":
@@ -60,7 +52,7 @@ elif selected == "Image":
         image = Image.open(uploaded)
         frame = np.array(image)
 
-        results = model.predict(frame, conf=0.5)
+        results = model.predict(frame)
 
         result_img = results[0].plot()
 
@@ -68,10 +60,23 @@ elif selected == "Image":
         col1.image(image, caption="Original")
         col2.image(result_img, caption="Detection")
 
-        for box in results[0].boxes:
-            cls = int(box.cls[0])
-            conf = float(box.conf[0])
-            name = model.model.names[cls]
+# ---------------- VIDEO ----------------
+elif selected == "Video":
 
-            if "fire" in name.lower() or "smoke" in name.lower():
-                st.error(f"🔥 Fire Detected! Confidence: {round(conf,2)}")
+    uploaded_video = st.file_uploader("Upload Video", type=["mp4","avi","mov"])
+
+    if uploaded_video:
+        st.video(uploaded_video)
+
+        st.info("Processing video... please wait ⏳")
+
+        # Save video temporarily
+        with open("temp.mp4", "wb") as f:
+            f.write(uploaded_video.read())
+
+        # Run YOLO directly on video (NO cv2 loop)
+        results = model.predict(source="temp.mp4", save=True)
+
+        st.success("✅ Processing complete!")
+
+        st.write("Check detection output video in results folder")
