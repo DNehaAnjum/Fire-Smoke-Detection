@@ -7,5 +7,6 @@ Pillow
 altair
 matplotlib
 seaborn
-
 opencv-python-headless
+
+opencv-python==0.0.0
