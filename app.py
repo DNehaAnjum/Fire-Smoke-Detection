@@ -1,12 +1,7 @@
-import os
-os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
-
 import streamlit as st
 from streamlit_option_menu import option_menu
-from ultralytics import YOLO
 from PIL import Image
 import numpy as np
-import glob
 
 # ---------------- CONFIG ----------------
 st.set_page_config(page_title="AI Fire Detection", page_icon="🔥", layout="wide")
@@ -41,9 +36,9 @@ selected = option_menu(
 if selected == "Home":
     st.markdown("""
     <div class="glass-card">
-    <h1>🔥 AI Powered Fire & Smoke Detection</h1>
+    <h1>🔥 AI Fire & Smoke Detection</h1>
     <p style="text-align:center;font-size:18px;">
-    Detect fire using YOLO from images & videos
+    Demo Interface for Fire Detection System
     </p>
     </div>
     """, unsafe_allow_html=True)
@@ -54,18 +49,11 @@ elif selected == "Image":
     uploaded = st.file_uploader("Upload Image", type=["jpg","png","jpeg"])
 
     if uploaded:
-        model = YOLO("yolov9t.pt")
-
         image = Image.open(uploaded)
-        frame = np.array(image)
+        st.image(image, caption="Uploaded Image", use_container_width=True)
 
-        results = model(frame)
-
-        result_img = results[0].plot()
-
-        col1, col2 = st.columns(2)
-        col1.image(image, caption="Original")
-        col2.image(result_img, caption="Detection")
+        st.success("✅ Image uploaded successfully")
+        st.info("🔥 Detection result will appear here")
 
 # ---------------- VIDEO ----------------
 elif selected == "Video":
@@ -73,25 +61,7 @@ elif selected == "Video":
     uploaded_video = st.file_uploader("Upload Video", type=["mp4","avi","mov"])
 
     if uploaded_video:
-
         st.video(uploaded_video)
 
-        # Save temp
-        with open("temp.mp4", "wb") as f:
-            f.write(uploaded_video.read())
-
-        model = YOLO("yolov9t.pt")
-
-        results = model.predict(source="temp.mp4", save=True)
-
-        # Get latest output
-        folders = glob.glob("runs/detect/*")
-        latest = max(folders, key=os.path.getctime)
-
-        output = glob.glob(f"{latest}/*.mp4")
-
-        if output:
-            st.success("✅ Done")
-            st.video(output[0])
-        else:
-            st.error("❌ No output")
+        st.success("✅ Video uploaded successfully")
+        st.info("🔥 Detection result will appear here")
