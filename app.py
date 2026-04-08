@@ -1,15 +1,17 @@
+import os
+os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
+
 import streamlit as st
 from streamlit_option_menu import option_menu
 from ultralytics import YOLO
 from PIL import Image
 import numpy as np
-import os
 import glob
 
-# ---------------- PAGE CONFIG ----------------
+# ---------------- CONFIG ----------------
 st.set_page_config(page_title="AI Fire Detection", page_icon="🔥", layout="wide")
 
-# ---------------- STYLES ----------------
+# ---------------- STYLE ----------------
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"]{
@@ -37,20 +39,14 @@ selected = option_menu(
 
 # ---------------- HOME ----------------
 if selected == "Home":
-
     st.markdown("""
     <div class="glass-card">
     <h1>🔥 AI Powered Fire & Smoke Detection</h1>
     <p style="text-align:center;font-size:18px;">
-    Detect fire from images and videos using YOLO.
+    Detect fire using YOLO from images & videos
     </p>
     </div>
     """, unsafe_allow_html=True)
-
-    st.image(
-        "https://media0.giphy.com/media/lMUGMp2lImgGA/giphy.gif",
-        use_container_width=True
-    )
 
 # ---------------- IMAGE ----------------
 elif selected == "Image":
@@ -58,26 +54,18 @@ elif selected == "Image":
     uploaded = st.file_uploader("Upload Image", type=["jpg","png","jpeg"])
 
     if uploaded:
-        model = YOLO("yolov9t.pt")   # load here (safe)
+        model = YOLO("yolov9t.pt")
 
         image = Image.open(uploaded)
         frame = np.array(image)
 
-        results = model.predict(frame)
+        results = model(frame)
 
         result_img = results[0].plot()
 
         col1, col2 = st.columns(2)
         col1.image(image, caption="Original")
         col2.image(result_img, caption="Detection")
-
-        for box in results[0].boxes:
-            cls = int(box.cls[0])
-            conf = float(box.conf[0])
-            name = model.model.names[cls]
-
-            if "fire" in name.lower() or "smoke" in name.lower():
-                st.error(f"🔥 Fire Detected! Confidence: {round(conf,2)}")
 
 # ---------------- VIDEO ----------------
 elif selected == "Video":
@@ -87,24 +75,23 @@ elif selected == "Video":
     if uploaded_video:
 
         st.video(uploaded_video)
-        st.info("Processing video... ⏳")
 
-        # Save input
+        # Save temp
         with open("temp.mp4", "wb") as f:
             f.write(uploaded_video.read())
 
         model = YOLO("yolov9t.pt")
 
-        model.predict(source="temp.mp4", save=True)
+        results = model.predict(source="temp.mp4", save=True)
 
-        # Get output
+        # Get latest output
         folders = glob.glob("runs/detect/*")
-        latest_folder = max(folders, key=os.path.getctime)
+        latest = max(folders, key=os.path.getctime)
 
-        output_videos = glob.glob(os.path.join(latest_folder, "*.mp4"))
+        output = glob.glob(f"{latest}/*.mp4")
 
-        if output_videos:
-            st.success("✅ Detection Complete!")
-            st.video(output_videos[0])
+        if output:
+            st.success("✅ Done")
+            st.video(output[0])
         else:
-            st.error("❌ Output video not found")
+            st.error("❌ No output")
