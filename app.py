@@ -27,9 +27,6 @@ h1,h2,h3{text-align:center;color:white;}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- MODEL ----------------
-model = YOLO("yolov9t.pt")
-
 # ---------------- MENU ----------------
 selected = option_menu(
     "🔥 AI Fire Detection Dashboard",
@@ -45,8 +42,7 @@ if selected == "Home":
     <div class="glass-card">
     <h1>🔥 AI Powered Fire & Smoke Detection</h1>
     <p style="text-align:center;font-size:18px;">
-    Real-time monitoring using YOLO Deep Learning.
-    Detect fire from images and videos.
+    Detect fire from images and videos using YOLO.
     </p>
     </div>
     """, unsafe_allow_html=True)
@@ -62,6 +58,8 @@ elif selected == "Image":
     uploaded = st.file_uploader("Upload Image", type=["jpg","png","jpeg"])
 
     if uploaded:
+        model = YOLO("yolov9t.pt")   # load here (safe)
+
         image = Image.open(uploaded)
         frame = np.array(image)
 
@@ -89,17 +87,17 @@ elif selected == "Video":
     if uploaded_video:
 
         st.video(uploaded_video)
-
         st.info("Processing video... ⏳")
 
-        # Save input video
+        # Save input
         with open("temp.mp4", "wb") as f:
             f.write(uploaded_video.read())
 
-        # Run detection
+        model = YOLO("yolov9t.pt")
+
         model.predict(source="temp.mp4", save=True)
 
-        # Get latest result folder
+        # Get output
         folders = glob.glob("runs/detect/*")
         latest_folder = max(folders, key=os.path.getctime)
 
