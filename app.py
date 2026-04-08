@@ -3,10 +3,10 @@ from streamlit_option_menu import option_menu
 from PIL import Image
 import numpy as np
 
-# ---------------- CONFIG ----------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="AI Fire Detection", page_icon="🔥", layout="wide")
 
-# ---------------- STYLE ----------------
+# ---------------- STYLES ----------------
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"]{
@@ -34,14 +34,18 @@ selected = option_menu(
 
 # ---------------- HOME ----------------
 if selected == "Home":
+
     st.markdown("""
     <div class="glass-card">
-    <h1>🔥 AI Fire & Smoke Detection</h1>
+    <h1>🔥 AI Powered Fire & Smoke Detection</h1>
     <p style="text-align:center;font-size:18px;">
-    Demo Interface for Fire Detection System
+    Real-time monitoring using YOLO Deep Learning. Detect fire from images and videos.
     </p>
     </div>
     """, unsafe_allow_html=True)
+
+    # 🔥 WORKING VIDEO (same like your screenshot)
+    st.video("https://media0.giphy.com/media/lMUGMp2lImgGA/giphy.mp4")
 
 # ---------------- IMAGE ----------------
 elif selected == "Image":
@@ -53,7 +57,7 @@ elif selected == "Image":
         st.image(image, caption="Uploaded Image", use_container_width=True)
 
         st.success("✅ Image uploaded successfully")
-        st.info("🔥 Detection result will appear here")
+        st.info("🔥 Detection output will appear here")
 
 # ---------------- VIDEO ----------------
 elif selected == "Video":
@@ -64,4 +68,4 @@ elif selected == "Video":
         st.video(uploaded_video)
 
         st.success("✅ Video uploaded successfully")
-        st.info("🔥 Detection result will appear here")
+        st.info("🔥 Detection output will appear here")
